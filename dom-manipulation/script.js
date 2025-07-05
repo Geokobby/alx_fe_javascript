@@ -135,14 +135,13 @@ function importQuotesFromFile(event) {
 // === SERVER SYNC (SIMULATED) ===
 const SERVER_URL = "https://jsonplaceholder.typicode.com/posts";
 function scheduleSync() {
-  setInterval(syncWithServer, 10000); // every 10 sec
+  setInterval(fetchQuotesFromServer, 10000); // every 10 sec
 }
 
-function syncWithServer() {
+function fetchQuotesFromServer() {
   fetch(SERVER_URL)
     .then(res => res.json())
     .then(serverData => {
-      // Simulated server quotes based on title/body
       const simulatedQuotes = serverData.slice(0, 5).map(item => ({
         text: item.title,
         category: "server"
