@@ -86,3 +86,107 @@ const quotes = [
     categoryInput.value = "";
   }
   
+  let quoteList = [];
+
+
+
+// Load on page load
+loadStoredQuotes();
+displayStoredQuotes();
+
+// === DOM Events ===
+newQuoteBtn.addEventListener("click", showRandomQuote);
+document.getElementById("addQuoteBtn").addEventListener("click", handleAddQuote);
+document.getElementById("exportBtn").addEventListener("click", exportQuotesToFile);
+document.getElementById("importFile").addEventListener("change", importQuotesFromFile);
+
+// === Core Functions ===
+
+function loadStoredQuotes() {
+  const stored = localStorage.getItem("quoteList");
+  if (stored) {
+    quoteList = JSON.parse(stored);
+  }
+}
+
+function saveQuotesToStorage() {
+  localStorage.setItem("quoteList", JSON.stringify(quoteList));
+}
+
+function displayStoredQuotes() {
+  quoteDisplay.innerHTML = "";
+  quoteList.forEach((quoteObj) => {
+    const p = document.createElement("p");
+    p.textContent = `"${quoteObj.text}" — (${quoteObj.category})`;
+    quoteDisplay.appendChild(p);
+  });
+}
+
+function showRandomQuote() {
+  if (quoteList.length === 0) {
+    quoteDisplay.textContent = "No quotes available.";
+    return;
+  }
+
+  const randomIndex = Math.floor(Math.random() * quoteList.length);
+  const quote = quoteList[randomIndex];
+  quoteDisplay.innerHTML = `<p>"${quote.text}" — (${quote.category})</p>`;
+
+  sessionStorage.setItem("lastViewedQuote", JSON.stringify(quote));
+}
+
+function handleAddQuote() {
+  const quoteText = document.getElementById("newQuoteText").value.trim();
+  const quoteCategory = document.getElementById("newQuoteCategory").value.trim();
+
+  if (!quoteText || !quoteCategory) {
+    alert("Please enter both a quote and a category.");
+    return;
+  }
+
+  const newQuoteObj = {
+    text: quoteText,
+    category: quoteCategory,
+  };
+
+  quoteList.push(newQuoteObj);
+  saveQuotesToStorage();
+  displayStoredQuotes();
+
+  document.getElementById("newQuoteText").value = "";
+  document.getElementById("newQuoteCategory").value = "";
+}
+
+function exportQuotesToFile() {
+  const blob = new Blob([JSON.stringify(quoteList, null, 2)], {
+    type: "application/json",
+  });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "quotes.json";
+  a.click();
+
+  URL.revokeObjectURL(url);
+}
+
+function importQuotesFromFile(event) {
+  const reader = new FileReader();
+  reader.onload = function (e) {
+    try {
+      const imported = JSON.parse(e.target.result);
+      if (Array.isArray(imported)) {
+        quoteList.push(...imported);
+        saveQuotesToStorage();
+        displayStoredQuotes();
+        alert("Quotes imported successfully.");
+      } else {
+        alert("Invalid JSON structure.");
+      }
+    } catch (err) {
+      alert("Failed to parse the file.");
+    }
+  };
+  reader.readAsText(event.target.files[0]);
+}
