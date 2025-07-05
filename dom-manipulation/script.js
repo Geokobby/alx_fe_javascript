@@ -46,14 +46,14 @@ function displayStoredQuotes(filter = "all") {
 
   filtered.forEach((quoteObj) => {
     const p = document.createElement("p");
-    p.textContent = `"${quoteObj.text}" — (${quoteObj.category})`;
+    p.innerHTML = `"${quoteObj.text}" — (${quoteObj.category})`;
     quoteDisplay.appendChild(p);
   });
 }
 
 function showRandomQuote() {
   if (quoteList.length === 0) {
-    quoteDisplay.textContent = "No quotes available.";
+    quoteDisplay.innerHTML = "No quotes available.";
     return;
   }
 
@@ -103,7 +103,7 @@ function populateCategories() {
   existing.forEach(cat => {
     const opt = document.createElement("option");
     opt.value = cat;
-    opt.textContent = cat;
+    opt.innerHTML = cat;
     if (cat === currentFilter) opt.selected = true;
     categoryFilter.appendChild(opt);
   });
