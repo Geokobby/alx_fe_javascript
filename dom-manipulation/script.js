@@ -132,32 +132,33 @@ function importQuotesFromFile(event) {
   reader.readAsText(event.target.files[0]);
 }
 
-// === SERVER SYNC (SIMULATED) ===
+// === SERVER SYNC (SIMULATED WITH ASYNC/AWAIT) ===
 const SERVER_URL = "https://jsonplaceholder.typicode.com/posts";
 function scheduleSync() {
   setInterval(fetchQuotesFromServer, 10000); // every 10 sec
 }
 
-function fetchQuotesFromServer() {
-  fetch(SERVER_URL)
-    .then(res => res.json())
-    .then(serverData => {
-      const simulatedQuotes = serverData.slice(0, 5).map(item => ({
-        text: item.title,
-        category: "server"
-      }));
-      const newServerQuotes = simulatedQuotes.filter(sq =>
-        !quoteList.some(lq => lq.text === sq.text && lq.category === sq.category)
-      );
-      if (newServerQuotes.length > 0) {
-        quoteList.push(...newServerQuotes);
-        saveQuotesToStorage();
-        populateCategories();
-        displayStoredQuotes(getSavedFilter());
-        showSyncNotice("Quotes synced from server.");
-      }
-    })
-    .catch(() => showSyncNotice("Sync failed. Check connection."));
+async function fetchQuotesFromServer() {
+  try {
+    const response = await fetch(SERVER_URL);
+    const serverData = await response.json();
+    const simulatedQuotes = serverData.slice(0, 5).map(item => ({
+      text: item.title,
+      category: "server"
+    }));
+    const newServerQuotes = simulatedQuotes.filter(sq =>
+      !quoteList.some(lq => lq.text === sq.text && lq.category === sq.category)
+    );
+    if (newServerQuotes.length > 0) {
+      quoteList.push(...newServerQuotes);
+      saveQuotesToStorage();
+      populateCategories();
+      displayStoredQuotes(getSavedFilter());
+      showSyncNotice("Quotes synced from server.");
+    }
+  } catch (error) {
+    showSyncNotice("Sync failed. Check connection.");
+  }
 }
 
 function showSyncNotice(message) {
