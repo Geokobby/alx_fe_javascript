@@ -136,7 +136,7 @@ function importQuotesFromFile(event) {
 // === SERVER SYNC (SIMULATED WITH ASYNC/AWAIT) ===
 const SERVER_URL = "https://jsonplaceholder.typicode.com/posts";
 function scheduleSync() {
-  setInterval(fetchQuotesFromServer, 10000); // every 10 sec
+  setInterval(syncQuotes, 10000); // every 10 sec
 }
 
 async function fetchQuotesFromServer() {
@@ -180,6 +180,10 @@ async function postQuoteToServer(quote) {
   } catch (error) {
     console.error("Failed to post quote:", error);
   }
+}
+
+function syncQuotes() {
+  fetchQuotesFromServer();
 }
 
 function showSyncNotice(message) {
