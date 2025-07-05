@@ -77,6 +77,7 @@ function handleAddQuote() {
   displayStoredQuotes(getSavedFilter());
   document.getElementById("newQuoteText").value = "";
   document.getElementById("newQuoteCategory").value = "";
+  postQuoteToServer(newQuoteObj); // send to mock server
 }
 
 function populateCategories() {
@@ -158,6 +159,26 @@ async function fetchQuotesFromServer() {
     }
   } catch (error) {
     showSyncNotice("Sync failed. Check connection.");
+  }
+}
+
+async function postQuoteToServer(quote) {
+  try {
+    const response = await fetch(SERVER_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        title: quote.text,
+        body: quote.category,
+        userId: 1
+      })
+    });
+    const data = await response.json();
+    console.log("Quote posted to server:", data);
+  } catch (error) {
+    console.error("Failed to post quote:", error);
   }
 }
 
