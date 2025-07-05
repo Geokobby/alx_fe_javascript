@@ -1,27 +1,31 @@
+// === DYNAMIC QUOTE GENERATOR WITH SYNC SUPPORT ===
+
 let quoteList = [];
 const quoteDisplay = document.getElementById("quoteDisplay");
 const newQuoteBtn = document.getElementById("newQuote");
 const categoryFilter = document.getElementById("categoryFilter");
+const syncNotice = document.createElement("div");
+syncNotice.id = "syncNotice";
+document.body.prepend(syncNotice);
 
-// Load and display everything on startup
+// === LOAD AND INITIALIZE ===
 loadStoredQuotes();
 populateCategories();
 displayStoredQuotes(getSavedFilter());
+scheduleSync(); // start sync cycle
 
-// === DOM Events ===
+// === EVENT LISTENERS ===
 newQuoteBtn.addEventListener("click", showRandomQuote);
 document.getElementById("addQuoteBtn").addEventListener("click", handleAddQuote);
 document.getElementById("exportBtn").addEventListener("click", exportQuotesToFile);
 document.getElementById("importFile").addEventListener("change", importQuotesFromFile);
 categoryFilter.addEventListener("change", filterQuotes);
 
-// === Core Functions ===
+// === QUOTE FUNCTIONS ===
 
 function loadStoredQuotes() {
   const stored = localStorage.getItem("quoteList");
-  if (stored) {
-    quoteList = JSON.parse(stored);
-  }
+  if (stored) quoteList = JSON.parse(stored);
 }
 
 function saveQuotesToStorage() {
@@ -34,29 +38,25 @@ function getSavedFilter() {
 
 function displayStoredQuotes(filter = "all") {
   quoteDisplay.innerHTML = "";
-
   const filtered = filter === "all"
     ? quoteList
     : quoteList.filter(q => q.category.toLowerCase() === filter.toLowerCase());
-
   if (filtered.length === 0) {
     quoteDisplay.innerHTML = "<p>No quotes found for this category.</p>";
     return;
   }
-
   filtered.forEach((quoteObj) => {
     const p = document.createElement("p");
-    p.innerHTML = `"${quoteObj.text}" — (${quoteObj.category})`;
+    p.textContent = `"${quoteObj.text}" — (${quoteObj.category})`;
     quoteDisplay.appendChild(p);
   });
 }
 
 function showRandomQuote() {
   if (quoteList.length === 0) {
-    quoteDisplay.innerHTML = "No quotes available.";
+    quoteDisplay.textContent = "No quotes available.";
     return;
   }
-
   const randomIndex = Math.floor(Math.random() * quoteList.length);
   const quote = quoteList[randomIndex];
   quoteDisplay.innerHTML = `<p>"${quote.text}" — (${quote.category})</p>`;
@@ -66,59 +66,43 @@ function showRandomQuote() {
 function handleAddQuote() {
   const quoteText = document.getElementById("newQuoteText").value.trim();
   const quoteCategory = document.getElementById("newQuoteCategory").value.trim();
-
   if (!quoteText || !quoteCategory) {
     alert("Please enter both a quote and a category.");
     return;
   }
-
-  const newQuoteObj = {
-    text: quoteText,
-    category: quoteCategory,
-  };
-
+  const newQuoteObj = { text: quoteText, category: quoteCategory };
   quoteList.push(newQuoteObj);
   saveQuotesToStorage();
-
   populateCategories();
   displayStoredQuotes(getSavedFilter());
-
   document.getElementById("newQuoteText").value = "";
   document.getElementById("newQuoteCategory").value = "";
 }
 
-// === Filtering ===
-
 function populateCategories() {
-    const categories = quoteList
-      .map(q => q.category.trim())                  // Extract categories using map
-      .filter((cat, index, self) => self.indexOf(cat) === index); // Ensure uniqueness
-  
-    const currentFilter = getSavedFilter();
-  
-    categoryFilter.innerHTML = `<option value="all">All Categories</option>`;
-  
-    categories.forEach(cat => {
-      const opt = document.createElement("option");
-      opt.value = cat;
-      opt.textContent = cat;
-      if (cat === currentFilter) opt.selected = true;
-      categoryFilter.appendChild(opt);
-    });
-  }
-  
+  const categories = quoteList
+    .map(q => q.category.trim())
+    .filter((cat, index, self) => self.indexOf(cat) === index);
+  const currentFilter = getSavedFilter();
+  categoryFilter.innerHTML = `<option value="all">All Categories</option>`;
+  categories.forEach(cat => {
+    const opt = document.createElement("option");
+    opt.value = cat;
+    opt.textContent = cat;
+    if (cat === currentFilter) opt.selected = true;
+    categoryFilter.appendChild(opt);
+  });
+}
+
 function filterQuotes() {
   const selected = categoryFilter.value;
   localStorage.setItem("selectedCategory", selected);
   displayStoredQuotes(selected);
 }
 
-// === Import/Export ===
-
+// === IMPORT/EXPORT ===
 function exportQuotesToFile() {
-  const blob = new Blob([JSON.stringify(quoteList, null, 2)], {
-    type: "application/json",
-  });
+  const blob = new Blob([JSON.stringify(quoteList, null, 2)], { type: "application/json" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
@@ -146,4 +130,42 @@ function importQuotesFromFile(event) {
     }
   };
   reader.readAsText(event.target.files[0]);
+}
+
+// === SERVER SYNC (SIMULATED) ===
+const SERVER_URL = "https://jsonplaceholder.typicode.com/posts";
+function scheduleSync() {
+  setInterval(syncWithServer, 10000); // every 10 sec
+}
+
+function syncWithServer() {
+  fetch(SERVER_URL)
+    .then(res => res.json())
+    .then(serverData => {
+      // Simulated server quotes based on title/body
+      const simulatedQuotes = serverData.slice(0, 5).map(item => ({
+        text: item.title,
+        category: "server"
+      }));
+      const newServerQuotes = simulatedQuotes.filter(sq =>
+        !quoteList.some(lq => lq.text === sq.text && lq.category === sq.category)
+      );
+      if (newServerQuotes.length > 0) {
+        quoteList.push(...newServerQuotes);
+        saveQuotesToStorage();
+        populateCategories();
+        displayStoredQuotes(getSavedFilter());
+        showSyncNotice("Quotes synced from server.");
+      }
+    })
+    .catch(() => showSyncNotice("Sync failed. Check connection."));
+}
+
+function showSyncNotice(message) {
+  syncNotice.textContent = message;
+  syncNotice.style.color = "white";
+  syncNotice.style.background = "#007bff";
+  syncNotice.style.padding = "5px";
+  syncNotice.style.textAlign = "center";
+  setTimeout(() => (syncNotice.textContent = ""), 4000);
 }
