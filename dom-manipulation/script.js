@@ -155,7 +155,7 @@ async function fetchQuotesFromServer() {
       saveQuotesToStorage();
       populateCategories();
       displayStoredQuotes(getSavedFilter());
-      showSyncNotice("Quotes synced with server.");
+      showSyncNotice("Quotes synced with server!");
     }
   } catch (error) {
     showSyncNotice("Sync failed. Check connection.");
