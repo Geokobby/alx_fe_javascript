@@ -26,6 +26,7 @@ const quotes = [
   function addQuote() {
     const quoteInput = document.getElementById("newQuoteText");
     const categoryInput = document.getElementById("newQuoteCategory");
+      const createAddQuoteForm = document.createElement('li');
   
     const quoteText = quoteInput.value.trim();
     const categoryText = categoryInput.value.trim();
