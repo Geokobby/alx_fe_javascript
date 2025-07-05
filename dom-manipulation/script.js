@@ -26,7 +26,7 @@ const quotes = [
   function addQuote() {
     const quoteInput = document.getElementById("newQuoteText");
     const categoryInput = document.getElementById("newQuoteCategory");
-      const createAddQuoteForm = document.createElement('li');
+      
   
     const quoteText = quoteInput.value.trim();
     const categoryText = categoryInput.value.trim();
@@ -43,6 +43,10 @@ const quotes = [
   
     quotes.push(newQuote);
   
+    const quoteEl = document.createElement("p");
+    quoteEl.textContent = `"${newQuote.text}" — (${newQuote.category})`;
+  
+    quoteDisplay.appendChild(quoteEl);
     // Clear inputs
     quoteInput.value = "";
     categoryInput.value = "";
