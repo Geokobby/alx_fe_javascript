@@ -13,13 +13,13 @@ const quotes = [
   // Show a random quote from the array
   function showRandomQuote() {
     if (quotes.length === 0) {
-      quoteDisplay.textContent = "No quotes available.";
+      quoteDisplay.innerHTML= "No quotes available.";
       return;
     }
   
     const randomIndex = Math.floor(Math.random() * quotes.length);
     const quote = quotes[randomIndex];
-    quoteDisplay.textContent = `"${quote.text}" — (${quote.category})`;
+    quoteDisplay.innerHTML= `"${quote.text}" — (${quote.category})`;
   }
   
   // Add a new quote to the array
@@ -47,7 +47,7 @@ const quotes = [
     categoryInput.value = "";
   
     // Optionally display the newly added quote
-    quoteDisplay.textContent = `"${newQuote.text}" — (${newQuote.category})`;
+    quoteDisplay.innerHTML= `"${newQuote.text}" — (${newQuote.category})`;
   }
   
   // Event listeners
