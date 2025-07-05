@@ -31,7 +31,7 @@ const quotes = [
   
     // Add button
     const addBtn = document.createElement("button");
-    addBtn.textContent = "Add Quote";
+    addBtn.innerHTML = "Add Quote";
     addBtn.id = "addQuoteBtn";
   
     // Append elements to the form container
@@ -48,13 +48,13 @@ const quotes = [
   
   function showRandomQuote() {
     if (quotes.length === 0) {
-      quoteDisplay.textContent = "No quotes available.";
+      quoteDisplay.innerHTML = "No quotes available.";
       return;
     }
   
     const randomIndex = Math.floor(Math.random() * quotes.length);
     const quote = quotes[randomIndex];
-    quoteDisplay.textContent = `"${quote.text}" — (${quote.category})`;
+    quoteDisplay.innerHTML = `"${quote.text}" — (${quote.category})`;
   }
   
   function addQuote() {
@@ -78,7 +78,7 @@ const quotes = [
   
     // Create and append quote element
     const quoteEl = document.createElement("p");
-    quoteEl.textContent = `"${newQuote.text}" — (${newQuote.category})`;
+    quoteEl.innerHTML = `"${newQuote.text}" — (${newQuote.category})`;
     quoteDisplay.appendChild(quoteEl);
   
     // Clear inputs
