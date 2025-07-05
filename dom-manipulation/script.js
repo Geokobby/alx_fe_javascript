@@ -90,25 +90,23 @@ function handleAddQuote() {
 // === Filtering ===
 
 function populateCategories() {
-  const existing = new Set();
-
-  quoteList.forEach(q => {
-    existing.add(q.category.trim());
-  });
-
-  const currentFilter = getSavedFilter();
-
-  categoryFilter.innerHTML = `<option value="all">All Categories</option>`;
-
-  existing.forEach(cat => {
-    const opt = document.createElement("option");
-    opt.value = cat;
-    opt.innerHTML = cat;
-    if (cat === currentFilter) opt.selected = true;
-    categoryFilter.appendChild(opt);
-  });
-}
-
+    const categories = quoteList
+      .map(q => q.category.trim())                  // Extract categories using map
+      .filter((cat, index, self) => self.indexOf(cat) === index); // Ensure uniqueness
+  
+    const currentFilter = getSavedFilter();
+  
+    categoryFilter.innerHTML = `<option value="all">All Categories</option>`;
+  
+    categories.forEach(cat => {
+      const opt = document.createElement("option");
+      opt.value = cat;
+      opt.textContent = cat;
+      if (cat === currentFilter) opt.selected = true;
+      categoryFilter.appendChild(opt);
+    });
+  }
+  
 function filterQuotes() {
   const selected = categoryFilter.value;
   localStorage.setItem("selectedCategory", selected);
